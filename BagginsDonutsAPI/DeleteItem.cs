@@ -21,43 +21,68 @@ namespace BagginsDonutsAPI
         {
             DBHandler dbHandler = new DBHandler();
             Container teamMembersContainer = dbHandler.GetTeamMembersContainer();
+            MapNameToIds nameToIds = new MapNameToIds();
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
-            string id = data?.id;
-            string uid = data?.userId;
+            string name = data?.name;
             string type = data?.type;
+            var user = nameToIds.GetUserDetails(name);
+            Guid awardToRemove = data?.awardToRemove;
 
 
-            if (String.IsNullOrWhiteSpace(id) || String.IsNullOrWhiteSpace(uid) || String.IsNullOrWhiteSpace(type))
+
+            if (String.IsNullOrWhiteSpace(name) || String.IsNullOrWhiteSpace(user.UserId) || String.IsNullOrWhiteSpace(type))
             {
                 return new BadRequestObjectResult("Required properties are missing from the request body.");
             }
 
 
-            var partitionKey = new Microsoft.Azure.Cosmos.PartitionKey(uid);
+            var partitionKey = new Microsoft.Azure.Cosmos.PartitionKey(user.UserId);
 
-            ItemResponse<TeamMember> response = await teamMembersContainer.ReadItemAsync<TeamMember>(id, partitionKey);
+
+            ItemResponse<TeamMember> response = await teamMembersContainer.ReadItemAsync<TeamMember>(user.Id, partitionKey);
             TeamMember currentItem = response.Resource;
 
             if (currentItem == null) return new NotFoundObjectResult("No team member found");
 
-            
-            
 
-            if (string.Equals(type, "croissant", StringComparison.OrdinalIgnoreCase))
+
+            if (type.ToLower() == "donut")
             {
-                if (currentItem.Croissants == 0) return new BadRequestObjectResult("Croissants cannot fall below 0");
-                currentItem.Croissants--;
+                bool donutExists = false;
+
+                foreach (var donut in currentItem.Donuts)
+                {
+                    if (donut.AwardId == awardToRemove)
+                    {
+                        donutExists = true;
+                        break;
+                    }
+                }
+
+                if(!donutExists) return new NotFoundObjectResult("Specified Donut not found");
+                currentItem.Donuts.RemoveAll(donut => donut.AwardId == awardToRemove);
             }
 
-            if (string.Equals(type, "donut", StringComparison.OrdinalIgnoreCase))
+            if (type.ToLower() == "croissant")
             {
-                if (currentItem.Donuts == 0) return new BadRequestObjectResult("Donuts cannot fall below 0");
-                currentItem.Donuts--;
+                bool croissantExists = false;
+
+                foreach (var croissant in currentItem.Croissants)
+                {
+                    if (croissant.AwardId == awardToRemove)
+                    {
+                        croissantExists = true;
+                        break;
+                    }
+                }
+                if (!croissantExists) return new NotFoundObjectResult("Specified Croissant not found");
+                currentItem.Croissants.RemoveAll(croissant => croissant.AwardId == awardToRemove);
             }
 
-            await teamMembersContainer.ReplaceItemAsync(currentItem, id, partitionKey);
+
+            await teamMembersContainer.ReplaceItemAsync(currentItem, user.Id, partitionKey);
 
             string responseMessage = $"Deleted a {type} for user {currentItem.Name}";
 

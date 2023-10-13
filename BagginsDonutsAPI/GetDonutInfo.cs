@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using Microsoft.Azure.Cosmos;
-using System.ComponentModel;
 using Container = Microsoft.Azure.Cosmos.Container;
 
 namespace BagginsDonutsAPI
@@ -29,6 +28,7 @@ namespace BagginsDonutsAPI
             );
 
             var team = new List<TeamMember> { };
+                    Console.WriteLine(DateTime.Now);
 
             while (feed.HasMoreResults)
             {

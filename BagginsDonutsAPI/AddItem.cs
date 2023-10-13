@@ -21,41 +21,54 @@ namespace BagginsDonutsAPI
         {
             DBHandler dbHandler = new DBHandler();
             Container teamMembersContainer = dbHandler.GetTeamMembersContainer();
+            MapNameToIds nameToIds = new MapNameToIds();
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
-            string id = data?.id;
-            string uid = data?.userId;
+            string name = data?.name;
             string type = data?.type;
+            var user = nameToIds.GetUserDetails(name);
+            string reason = data?.reason;
 
 
-            if(String.IsNullOrWhiteSpace(id) || String.IsNullOrWhiteSpace(uid) || String.IsNullOrWhiteSpace(type))
+            if(String.IsNullOrWhiteSpace(name) || String.IsNullOrWhiteSpace(user.UserId) || String.IsNullOrWhiteSpace(type) || String.IsNullOrWhiteSpace(reason))
             {
                 return new BadRequestObjectResult("Required properties are missing from the request body.");
             }
 
 
-            var partitionKey = new Microsoft.Azure.Cosmos.PartitionKey(uid);
-
-            ItemResponse<TeamMember> response = await teamMembersContainer.ReadItemAsync<TeamMember>(id, partitionKey);
+            var partitionKey = new Microsoft.Azure.Cosmos.PartitionKey(user.UserId);
+            ItemResponse<TeamMember> response = await teamMembersContainer.ReadItemAsync<TeamMember>(user.Id, partitionKey);
             TeamMember currentItem = response.Resource;
 
             if (currentItem == null) return new NotFoundObjectResult("No team member found");
 
-            if (string.Equals(type, "croissant", StringComparison.OrdinalIgnoreCase))
+            Guid guid = Guid.NewGuid();
+
+            if(type.ToLower() == "donut")
             {
-                currentItem.Croissants++;
+                currentItem.Donuts.Add(new Award
+                {
+                    AwardedDate = DateTime.Now,
+                    AwardedReason = reason,
+                    AwardId = guid,
+                });
             }
 
-            if (string.Equals(type, "donut", StringComparison.OrdinalIgnoreCase))
+            if (type.ToLower() == "croissant")
             {
-                currentItem.Donuts++;
+                currentItem.Croissants.Add(new Award
+                {
+                    AwardedDate = DateTime.Now,
+                    AwardedReason = reason,
+                    AwardId = guid,
+                });
             }
 
-            await teamMembersContainer.ReplaceItemAsync(currentItem, id, partitionKey);
 
-            string responseMessage = $"Added a {type} for user {currentItem.Name}";
+            await teamMembersContainer.ReplaceItemAsync(currentItem, user.Id, partitionKey);
 
+            string responseMessage = $"Added a {type} for user {currentItem.Name} with id {guid}";
             return new OkObjectResult(responseMessage);
         }
     }

@@ -11,7 +11,14 @@ namespace BagginsDonutsAPI
         public Guid UserId { get; set; }
         public Guid id { get; set; }
         public string Name { get; set; }
-        public int Donuts { get; set; }
-        public int Croissants { get; set; }
+        public List<Award> Donuts { get; set; }
+        public List<Award> Croissants { get; set; }
+    }
+
+    internal class Award
+    {
+        public DateTime AwardedDate { get; set; }
+        public string AwardedReason { get; set; }
+        public Guid AwardId { get; set; }
     }
 }
