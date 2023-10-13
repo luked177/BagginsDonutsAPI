@@ -17,7 +17,7 @@ namespace BagginsDonutsAPI
     {
         [FunctionName("GetDonutInfo")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
             ILogger log)
         {
             DBHandler dbHandler = new DBHandler();
@@ -28,7 +28,6 @@ namespace BagginsDonutsAPI
             );
 
             var team = new List<TeamMember> { };
-                    Console.WriteLine(DateTime.Now);
 
             while (feed.HasMoreResults)
             {
