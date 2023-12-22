@@ -20,5 +20,6 @@ namespace BagginsDonutsAPI
         public DateTime AwardedDate { get; set; }
         public string AwardedReason { get; set; }
         public Guid AwardId { get; set; }
+        public bool IsChristmas { get; set; }
     }
 }
