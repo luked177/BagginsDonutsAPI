@@ -20,7 +20,8 @@ namespace BagginsDonutsAPI
             nameToDetails["Feargus"] = ("4116e6a7-3617-4f3c-94aa-c9c56cf4aef3", "0692a734-da7b-4d7e-b8bb-71d00d853e2e");
             nameToDetails["Liam"] = ("f90b4327-ca08-4893-b6e8-c4b3011088f0", "eabb79d6-0173-4c09-be29-da8222ece0f0");
             nameToDetails["Andy"] = ("d2e80bf8-c2e5-4500-b4de-64816dc9ab2c", "5e4d2221-873e-482b-94de-4c34f084ddde");
-            nameToDetails["Tom"] = ("40820a84-0531-48b3-a4b1-79ccb4b6c668", "8963ca8f-b9ce-4dca-bc18-b8fa15917f68");
+            nameToDetails["Martino"] = ("40820a84-0531-48b3-a4b1-79ccb4b6c668", "8963ca8f-b9ce-4dca-bc18-b8fa15917f68");
+            nameToDetails["Rocket"] = ("f86fb4dd-e65f-4f66-bc43-89c977323707", "f0c52405-926e-4f42-a16c-1e5015af9fca");
         }
 
         public (string UserId, string Id) GetUserDetails(string name)
