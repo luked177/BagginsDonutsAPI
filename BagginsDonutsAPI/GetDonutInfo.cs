@@ -24,6 +24,14 @@ namespace BagginsDonutsAPI
             DBHandler dbHandler = new DBHandler();
             Container teamMembersContainer = dbHandler.GetTeamMembersContainer();
 
+            bool showArchive = false;
+            if (req.Query.ContainsKey("showArchive"))
+            {
+                bool.TryParse(req.Query["showArchive"], out showArchive);
+            }
+
+            Console.WriteLine(showArchive);
+
             using FeedIterator<TeamMember> feed = teamMembersContainer.GetItemQueryIterator<TeamMember>(
                 queryText: "SELECT * FROM c"
             );
@@ -36,6 +44,11 @@ namespace BagginsDonutsAPI
 
                 foreach (TeamMember item in response)
                 {
+                    if (!showArchive)
+                    {
+                        int remainder = item.Donuts.Count % 6;
+                        item.Donuts = item.Donuts.TakeLast(remainder).ToList();
+                    }
                     item.Score = (item.Croissants.Count * 3) - item.Donuts.Count;
                     team.Add(item);
                 }
