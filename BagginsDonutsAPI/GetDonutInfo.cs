@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using Microsoft.Azure.Cosmos;
 using Container = Microsoft.Azure.Cosmos.Container;
+using System.Linq;
 
 namespace BagginsDonutsAPI
 {
@@ -35,11 +36,12 @@ namespace BagginsDonutsAPI
 
                 foreach (TeamMember item in response)
                 {
+                    item.Score = (item.Croissants.Count * 3) - item.Donuts.Count;
                     team.Add(item);
                 }
             }
 
-            return new OkObjectResult(team);
+            return new OkObjectResult(team.OrderByDescending(x => x.Score).ToList());
         }
     }
 }

@@ -13,6 +13,7 @@ namespace BagginsDonutsAPI
         public string Name { get; set; }
         public List<Award> Donuts { get; set; }
         public List<Award> Croissants { get; set; }
+        public int Score { get; set; }
     }
 
     internal class Award

@@ -31,7 +31,7 @@ namespace BagginsDonutsAPI
             string reason = data?.reason;
 
 
-            if(String.IsNullOrWhiteSpace(name) || String.IsNullOrWhiteSpace(user.UserId) || String.IsNullOrWhiteSpace(type) || String.IsNullOrWhiteSpace(reason))
+            if(string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(user.UserId) || string.IsNullOrWhiteSpace(type) || string.IsNullOrWhiteSpace(reason))
             {
                 return new BadRequestObjectResult("Required properties are missing from the request body.");
             }
