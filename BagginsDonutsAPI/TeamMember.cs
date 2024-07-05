@@ -14,6 +14,7 @@ namespace BagginsDonutsAPI
         public List<Award> Donuts { get; set; }
         public List<Award> Croissants { get; set; }
         public int Score { get; set; }
+        public List<ArchivedBoxes> ArchivedBoxes { get; set; }
     }
 
     internal class Award
@@ -22,5 +23,11 @@ namespace BagginsDonutsAPI
         public string AwardedReason { get; set; }
         public Guid AwardId { get; set; }
         public bool IsChristmas { get; set; }
+    }
+
+    internal class ArchivedBoxes
+    {
+        public int number { get; set; }
+        public List<Award> donuts { get; set; }
     }
 }

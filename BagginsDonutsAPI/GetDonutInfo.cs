@@ -44,12 +44,20 @@ namespace BagginsDonutsAPI
 
                 foreach (TeamMember item in response)
                 {
-                    if (!showArchive)
-                    {
-                        int remainder = item.Donuts.Count % 6;
-                        item.Donuts = item.Donuts.TakeLast(remainder).ToList();
-                    }
                     item.Score = (item.Croissants.Count * 3) - item.Donuts.Count;
+                    int remainder = item.Donuts.Count % 6;
+                    int numOfArchivedBoxes = (item.Donuts.Count - remainder) / 6;
+                    item.ArchivedBoxes = new List<ArchivedBoxes>();
+                    for (int i = 0; i < numOfArchivedBoxes; i++)
+                    {
+                        var archivedBox = new ArchivedBoxes
+                        {
+                            number = i + 1,
+                            donuts = item.Donuts.Skip(i * 6).Take(6).ToList()
+                        };
+                        item.ArchivedBoxes.Add(archivedBox);
+                    }
+                    item.Donuts = item.Donuts.TakeLast(remainder).ToList();
                     team.Add(item);
                 }
             }
