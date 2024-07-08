@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
+using System.Linq;
 
 namespace BagginsDonutsAPI
 {
@@ -44,7 +45,7 @@ namespace BagginsDonutsAPI
                 }
             }
 
-            return new OkObjectResult(suggestions);
+            return new OkObjectResult(suggestions.OrderByDescending(x => x.SuggestionDate));
         }
     }
 }
