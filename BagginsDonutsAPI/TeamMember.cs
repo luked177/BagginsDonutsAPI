@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BagginsDonutsAPI
 {
@@ -23,6 +20,14 @@ namespace BagginsDonutsAPI
         public string AwardedReason { get; set; }
         public Guid AwardId { get; set; }
         public bool IsChristmas { get; set; }
+
+        public Award(string awardReason)
+        {
+            AwardedDate = DateTime.Now;
+            AwardedReason = awardReason;
+            AwardId = Guid.NewGuid();
+            IsChristmas = DateTime.Now.Month == 12; //Only  give cookies in December
+        }
     }
 
     internal class ArchivedBoxes

@@ -1,14 +1,14 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Container = Microsoft.Azure.Cosmos.Container;
-using Microsoft.Azure.Cosmos;
 
 namespace BagginsDonutsAPI
 {
@@ -36,39 +36,31 @@ namespace BagginsDonutsAPI
                 return new BadRequestObjectResult("Required properties are missing from the request body.");
             }
 
-
-            var partitionKey = new Microsoft.Azure.Cosmos.PartitionKey(user.UserId);
+            var partitionKey = new PartitionKey(user.UserId);
             ItemResponse<TeamMember> response = await teamMembersContainer.ReadItemAsync<TeamMember>(user.Id, partitionKey);
             TeamMember currentItem = response.Resource;
 
             if (currentItem == null) return new NotFoundObjectResult("No team member found");
 
-            Guid guid = Guid.NewGuid();
+            var newAward = new Award(reason);
+            List<PatchOperation> patchOperations = new List<PatchOperation>();
 
-            if(type.ToLower() == "donut")
+            switch (type.ToLower())
             {
-                currentItem.Donuts.Add(new Award
-                {
-                    AwardedDate = DateTime.Now,
-                    AwardedReason = reason,
-                    AwardId = guid,
-                });
+                case "donut":
+                    currentItem.Donuts.Add(newAward);
+                    patchOperations.Add(PatchOperation.Replace("/Donuts", currentItem.Donuts));
+                    break;
+                case "croissant":
+                    currentItem.Croissants.Add(newAward);
+                    patchOperations.Add(PatchOperation.Replace("/Croissants", currentItem.Croissants));
+                    break;
+                default:
+                    return new BadRequestObjectResult("Invalid type. Please use 'donut' or 'croissant'");
             }
 
-            if (type.ToLower() == "croissant")
-            {
-                currentItem.Croissants.Add(new Award
-                {
-                    AwardedDate = DateTime.Now,
-                    AwardedReason = reason,
-                    AwardId = guid,
-                });
-            }
-
-
-            await teamMembersContainer.ReplaceItemAsync(currentItem, user.Id, partitionKey);
-
-            string responseMessage = $"Added a {type} for user {currentItem.Name} with id {guid}";
+            await teamMembersContainer.PatchItemAsync<TeamMember>(user.Id, partitionKey, patchOperations);
+            string responseMessage = $"Added a {type} for user {currentItem.Name} with id {newAward.AwardId}";
             return new OkObjectResult(responseMessage);
         }
     }
